@@ -1,3 +1,5 @@
+[![webDiplomacy Checks](https://github.com/oppiet30/webDiplomacy/actions/workflows/checks.yml/badge.svg?branch=master)](https://github.com/oppiet30/webDiplomacy/actions/workflows/checks.yml)
+
 Diplomacy is a popular turn based strategy game in which you battle to control Europe; to win you must be diplomatic and strategic.
  
 webDiplomacy lets you play Diplomacy online.
