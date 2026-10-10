@@ -1,0 +1,55 @@
+name: Local webDiplomacy Checks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: webdiplomacy-local-checks
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    if: github.repository == 'oppiet30/webDiplomacy' && github.ref == 'refs/heads/master'
+    runs-on: [self-hosted, linux, x64, webdiplomacy]
+    timeout-minutes: 60
+    env:
+      TEST_IMAGE: webdiplomacy:checks-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Verify Docker access
+        run: |
+          docker version
+          docker info > /dev/null
+
+      - name: Build isolated check image
+        run: docker build --file Dockerfile.runner --tag "$TEST_IMAGE" .
+
+      - name: Check application PHP syntax
+        run: |
+          docker run --rm "$TEST_IMAGE" bash -euo pipefail -c '
+            find . \( -path ./vendor -o -path ./contrib -o -name node_modules -o -path ./game -o -path ./beta -o -path ./cache -o -path ./mapstore \) -prune -o -type f -name "*.php" -print0 | xargs -0 -r -n1 php -l
+          '
+
+      - name: Run React board smoke tests
+        run: docker run --rm --env CI=true --workdir /application/game-src "$TEST_IMAGE" npm test -- --watchAll=false --runInBand
+
+      - name: Build React board
+        # Match the normal build: existing lint warnings do not become CI errors.
+        run: docker run --rm --env CI=false --workdir /application/game-src "$TEST_IMAGE" npm run build
+
+      - name: Check SSE JavaScript syntax
+        run: |
+          docker run --rm "$TEST_IMAGE" bash -euo pipefail -c '
+            find sse-server -name node_modules -prune -o -type f -name "*.js" -print0 | xargs -0 -r -n1 node --check
+          '
+
+      - name: Remove this run image
+        if: always()
+        run: docker image rm "$TEST_IMAGE" || true
