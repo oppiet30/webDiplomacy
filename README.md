@@ -46,6 +46,23 @@ docker run -d --env API_WEBDIPLOMACY=http://172.21.16.1:43000/api.php --env API_
 
 Kestas J. Kuliukas - kestas@kuliukas.com
 
+## GitHub-hosted checks
+
+**webDiplomacy Checks** runs on GitHub's Ubuntu servers when commits reach `master`
+or a pull request targets `master` in `oppiet30/webDiplomacy`. It can also be started
+through **Actions → webDiplomacy Checks → Run workflow**. No local runner or Docker
+installation on your computer is needed for this workflow.
+
+The checks use `Dockerfile.runner` to install dependencies, lint application PHP,
+run the React board smoke test, build the board, and check SSE JavaScript syntax.
+They do not deploy the site or run database-backed DATC tests. GitHub-hosted jobs
+start on fresh machines, so they build their own image. Logs and results are available
+in the Actions tab and on pull requests.
+
+```bash
+gh workflow run checks.yml --repo oppiet30/webDiplomacy --ref master
+```
+
 ## Local GitHub Actions runner (Linux)
 
 The manually triggered **Local webDiplomacy Checks** workflow runs only in
