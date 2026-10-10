@@ -1,0 +1,28 @@
+name: Variant cache regression
+
+on:
+  push:
+    paths:
+      - variants/install.php
+      - tests/install-cache.php
+      - .github/workflows/cache-test.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cache-test:
+    if: github.repository == 'oppiet30/webDiplomacy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Test variant cache creation
+        run: |
+          php --version
+          php -l variants/install.php
+          php -l tests/install-cache.php
+          php tests/install-cache.php
