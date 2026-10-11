@@ -2605,3 +2605,7 @@ ALTER TABLE `wD_Games` ADD INDEX `playerTypesPhasePot` (`playerTypes`, `phase`, 
 -- ALTER TABLE `phpbb_posts_likes` ADD INDEX `user_id` (`user_id`);
 
 UPDATE `wD_Misc` SET `value` = '183' WHERE `name` = 'Version';
+
+-- Opt-in bot-only spectator games (existing games keep normal behavior).
+ALTER TABLE wD_Games ADD COLUMN allowAllBots enum('No','Yes') NOT NULL DEFAULT 'No';
+ALTER TABLE wD_Backup_Games ADD COLUMN allowAllBots enum('No','Yes') NOT NULL DEFAULT 'No';

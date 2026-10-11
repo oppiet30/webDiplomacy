@@ -25,6 +25,7 @@ require_once(l_r('gamemaster/gamemaster.php'));
 require_once(l_r('objects/game.php'));
 require_once(l_r('gamemaster/members.php'));
 require_once(l_r('ghostratings/calculations.php'));
+require_once(l_r('lib/botonlygames.php'));
 
 /**
  * This class creates games, joins players up to games, manages the passing of games
@@ -121,7 +122,7 @@ class processGame extends Game
 	 * @var array
 	 */
 	protected static $gameTableColumns=array(
-			'Games'=>'variantID;id;turn;phase;processTime;pot;name;gameOver;processStatus;password;potType;pauseTimeRemaining;minimumBet;phaseMinutes;phaseMinutesRB;nextPhaseMinutes;phaseSwitchPeriod;anon;pressType;attempts;missingPlayerPolicy;directorUserID;minimumReliabilityRating;minimumNMRScore;drawType;excusedMissedTurns;finishTime;playerTypes;startTime;grCalculated',
+			'Games'=>'variantID;id;turn;phase;processTime;pot;name;gameOver;processStatus;password;potType;pauseTimeRemaining;minimumBet;phaseMinutes;phaseMinutesRB;nextPhaseMinutes;phaseSwitchPeriod;anon;pressType;attempts;missingPlayerPolicy;directorUserID;minimumReliabilityRating;minimumNMRScore;drawType;excusedMissedTurns;finishTime;playerTypes;allowAllBots;startTime;grCalculated',
 			'Members'=>'id;userID;gameID;countryID;status;timeLoggedIn;bet;missedPhases;newMessagesFrom;supplyCenterNo;unitNo;votes;pointsWon;gameMessagesSent;orderStatus;hideNotifications;excusedMissedTurns;groupTag',
 			'Orders'=>'id;gameID;countryID;type;unitID;toTerrID;fromTerrID;viaConvoy',
 			'TerrStatus'=>'id;terrID;occupiedFromTerrID;standoff;gameID;occupyingUnitID;retreatingUnitID;countryID',
@@ -426,7 +427,7 @@ class processGame extends Game
 	 *
 	 * @return Game The object corresponding to the new game
 	 */
-	public static function create($variantID, $name, $password, $bet, $potType, $phaseMinutes, $phaseMinutesRB, $nextPhaseMinutes, $phaseSwitchPeriod, $joinPeriod, $anon, $press, $missingPlayerPolicy, $drawType, $rrLimit, $excusedMissedTurns, $playerTypes)
+	public static function create($variantID, $name, $password, $bet, $potType, $phaseMinutes, $phaseMinutesRB, $nextPhaseMinutes, $phaseSwitchPeriod, $joinPeriod, $anon, $press, $missingPlayerPolicy, $drawType, $rrLimit, $excusedMissedTurns, $playerTypes, $allowAllBots = false)
 	{
 		global $DB;
 
@@ -494,6 +495,7 @@ class processGame extends Game
 						minimumReliabilityRating=".$rrLimit.",
 						excusedMissedTurns = ".$excusedMissedTurns.",
 						playerTypes = '".$playerTypes."',
+						allowAllBots = '".($allowAllBots ? 'Yes' : 'No')."',
 						startTime = ".$startTime);
 
 		$gameID = $DB->last_inserted();
@@ -881,7 +883,7 @@ class processGame extends Game
 		}
 		
 		//Anytime the phase changes checks for force draws if only bots are left.
-		if ($this->playerTypes <> 'Members' && $this->phase <> 'Finished' && $this->phase <> 'Pre-game')
+		if (libBotOnlyGames::shouldCheckAutomaticDraw($this->playerTypes, $this->phase, $this->allowAllBots))
 		{
 			$playerCount = count($this->Members->ByStatus['Playing']);
 			$botCount = 0;

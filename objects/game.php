@@ -337,6 +337,9 @@ class Game
 	 */
 	public $playerTypes;
 
+	/** Opt-in spectator games continue when only bots remain. */
+	public $allowAllBots = 'No';
+
 
 	/**
 	 * The time the game was started, a UNIX timestamp. Initialized as -1.
@@ -500,6 +503,8 @@ class Game
 			$alternatives[] = l_t( $pressType );
 		}
 
+		if( $this->allowAllBots == 'Yes' ) $alternatives[] = l_t('Bot-only spectator game');
+
 		$playerTypeMap = [
 			'Mixed' => 'Fill with Bots',
 			'MemberVsBots' => 'Bot Game',
@@ -648,6 +653,7 @@ class Game
 			g.minimumReliabilityRating,
 			g.excusedMissedTurns,
 			g.playerTypes,
+			g.allowAllBots,
 			g.startTime,
 			g.directorUserID,
 			g.sandboxCreatedByUserID,
@@ -691,6 +697,7 @@ class Game
         if ( array_key_exists($User->id,$this->civilDisorderInfo) ) return false;
 
 		if( !$User->type['User'] ) return false;
+		if( $this->allowAllBots == 'Yes' ) return false;
 
 		switch($this->phase)
 		{

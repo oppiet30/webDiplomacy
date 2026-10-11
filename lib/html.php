@@ -1029,6 +1029,7 @@ class libHTML
 				$links['admincp.php']=array('name'=>'Admin CP', 'inmenu'=>true);
 			}
 			$links['gamemaster.php']=array('name'=>'GameMaster', 'inmenu'=>FALSE);
+			if ($User->type['Moderator']) $links['botonlygamecreate.php']=array('name'=>'New Bot-Only Game', 'inmenu'=>TRUE, 'title'=>'Watch seven bots play a game');
 		}
 
 		return $links;
@@ -1142,6 +1143,7 @@ class libHTML
 								<a href="gamelistings.php?gamelistType=Open%20Positions" title="Open positions dropped by other players, free to claim">Open Games</a>
 								<a href="gamecreate.php" title="Start up a new game">Start a New Game</a>
 								<a href="botgamecreate.php" title="Start up a new bots-only game">Start an AI/Bot Game</a>
+								'.($User->type['Moderator'] ? '<a href="botonlygamecreate.php">Start a Bot-Only Game</a>' : '').'
 								<a href="gamecreateSandbox.php" title="Start up a new bots-only game">Start a Sandbox Game</a>
 								<a href="gamelistings.php?gamelistType=Active" title="View/Spectate games currently running">Active Games</a>
 								<!-- <a href="ghostRatings.php" title="Ghost Ratings Information">Ghost Ratings</a> -->
