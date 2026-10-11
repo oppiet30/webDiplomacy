@@ -987,7 +987,7 @@ class adminMultiCheck
 	 *
 	 * @param User $bUser The user to compare aUser with
 	 */
-	public function compare(User $bUser, GroupUserToUserLinks $relations=null)
+	public function compare(User $bUser, ?GroupUserToUserLinks $relations=null)
 	{
 		global $DB;
 
