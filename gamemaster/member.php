@@ -94,6 +94,12 @@ class processMember extends Member
 
 		assert('$Game instanceof processGame');
 
+		if ($Game->allowAllBots == 'Yes')
+		{
+			list($isBot) = $DB->sql_row("SELECT FIND_IN_SET('Bot', type) FROM wD_Users WHERE id = ".(int)$userID);
+			if (!$isBot) throw new Exception(l_t('Only bot accounts can join this spectator game.'));
+		}
+
 		// It is assumed this is being run within a transaction
 
 		$DB->sql_put("INSERT INTO wD_Members SET

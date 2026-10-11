@@ -1,0 +1,39 @@
+name: Bot-only game tests
+on:
+  pull_request:
+    paths: ['lib/botonlygames.php', 'botonlygamecreate.php', 'gamemaster/**', 'objects/game.php', 'tests/bot-only-games.php', 'install/bot-only-games/**', '.github/workflows/bot-only-games.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check PHP syntax and bot-only behavior
+        run: |
+          php --version
+          for file in lib/botonlygames.php botonlygamecreate.php gamemaster/game.php gamemaster/member.php objects/game.php lib/html.php tests/bot-only-games.php; do php -l "$file"; done
+          php tests/bot-only-games.php
+      - name: Verify upgrade preserves existing games
+        run: |
+          docker run --detach --name bot-only-db --env MARIADB_ROOT_PASSWORD=test mariadb:11.4
+          for attempt in $(seq 1 60); do
+            if docker exec bot-only-db mariadb-admin --user=root --password=test ping --silent; then break; fi
+            sleep 1
+          done
+          docker exec --interactive bot-only-db mariadb --user=root --password=test <<'SQL'
+          CREATE DATABASE bot_test;
+          USE bot_test;
+          CREATE TABLE wD_Games (id int PRIMARY KEY, name varchar(50));
+          CREATE TABLE wD_Backup_Games LIKE wD_Games;
+          INSERT INTO wD_Games VALUES (5,'Existing game');
+          INSERT INTO wD_Backup_Games VALUES (4,'Existing backup');
+          SQL
+          docker exec --interactive bot-only-db mariadb --user=root --password=test bot_test < install/bot-only-games/update.sql
+          result=$(docker exec bot-only-db mariadb --user=root --password=test --skip-column-names bot_test -e "SELECT COUNT(*) FROM wD_Games WHERE id=5 AND name='Existing game' AND allowAllBots='No'; SELECT COUNT(*) FROM wD_Backup_Games WHERE id=4 AND name='Existing backup' AND allowAllBots='No';")
+          test "$result" = $'1\n1'
+      - name: Remove test database
+        if: always()
+        run: docker rm --force bot-only-db || true
