@@ -243,17 +243,17 @@ $healthCheckResults[] = array(
 
 $healthCheckResults[] = array(
 	'label' => 'Gunboat Games (Anon)',
-	'description' => 'The number of error log entries accumulated.',
-	'active' => $Misc->BotGamesActiveNoPress_Anonymous > 190,
-	'text' => $Misc->BotGamesActiveNoPress_Anonymous . ' entries',
+	'description' => 'The number of anonymous no-press bot games running, against the limit of '.BOT_GAME_LIMIT_NOPRESS_ANONYMOUS.' botgamecreate.php allows.',
+	'active' => $Misc->BotGamesActiveNoPress_Anonymous >= BOT_GAME_LIMIT_NOPRESS_ANONYMOUS,
+	'text' => $Misc->BotGamesActiveNoPress_Anonymous . '/' . BOT_GAME_LIMIT_NOPRESS_ANONYMOUS . ' games',
 	'importance' => 2
 );
 
 $healthCheckResults[] = array(
 	'label' => 'Gunboat Games (User)',
-	'description' => 'The number of error log entries accumulated.',
-	'active' => $Misc->BotGamesActiveNoPress > 550,
-	'text' => $Misc->BotGamesActiveNoPress . ' entries',
+	'description' => 'The number of registered users\' no-press bot games running, against the limit of '.BOT_GAME_LIMIT_NOPRESS.' botgamecreate.php allows.',
+	'active' => $Misc->BotGamesActiveNoPress >= BOT_GAME_LIMIT_NOPRESS,
+	'text' => $Misc->BotGamesActiveNoPress . '/' . BOT_GAME_LIMIT_NOPRESS . ' games',
 	'importance' => 2
 );
 
