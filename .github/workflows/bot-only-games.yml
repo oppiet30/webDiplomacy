@@ -19,10 +19,19 @@ jobs:
       - name: Verify upgrade preserves existing games
         run: |
           docker run --detach --name bot-only-db --env MARIADB_ROOT_PASSWORD=test mariadb:11.4
+          database_ready=false
           for attempt in $(seq 1 60); do
-            if docker exec bot-only-db mariadb-admin --user=root --password=test ping --silent; then break; fi
+            if docker exec bot-only-db mariadb --protocol=tcp --host=127.0.0.1 --user=root --password=test --execute='SELECT 1' >/dev/null 2>&1; then
+              database_ready=true
+              break
+            fi
             sleep 1
           done
+          if [ "$database_ready" != true ]; then
+            docker logs bot-only-db
+            echo 'MariaDB did not become ready for authenticated SQL within 60 seconds.' >&2
+            exit 1
+          fi
           docker exec --interactive bot-only-db mariadb --user=root --password=test <<'SQL'
           CREATE DATABASE bot_test;
           USE bot_test;
