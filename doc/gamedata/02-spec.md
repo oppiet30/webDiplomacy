@@ -1,5 +1,7 @@
 # Game data: static JSON files + `game/playercontext` (step 2 spec)
 
+This is a historical design and implementation record. For the current API contract, examples and known limitations, see [Current webDiplomacy API](../API.md). Deployment statements below describe the date of this draft.
+
 Draft 3, 2026-09-19. Answers the audit in `01-audit.md`. Everything here is implemented and tested on the dev
 stack, not yet deployed; section 10 lists what was built and tested, and what was found on the way. Section 8 maps every audited field to
 its new home; section 9 lists the decisions that are still open.
